@@ -61,8 +61,15 @@ app.get("/campgrounds", catchAsync(async (req,res)=>{
         })
         return new Promise(function (resolve, reject) {
             request.on("row", function (columns) {
-                // console.log(columns)
-                resolve(columns)
+                let db_Data = []
+                columns.forEach(function (column,index) {
+                    if(index === 0){
+                        db_Data.push({});
+                    }
+                    db_Data[db_Data.length-1][column.metadata.colName] = column.value;
+                    // console.log(index,column.metadata.colName,column.value);
+                })
+                resolve(db_Data)
             })
             request.on("requestCompleted", function (rowCount, more) {
                 connection.close();
