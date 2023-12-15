@@ -1,3 +1,13 @@
+# Taiean Campground Website: A Simple Small Project
+
+<img src="">
+
+## Setting up the Environment
+To set up your environment you need to pre install the docker.
+
+### Step 1. Create Mircorsoft SQL server 
+
+**Authors:** 
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/sqvkfi3f)
 # Taiwan Campground Website: A Simple Small Project
 
