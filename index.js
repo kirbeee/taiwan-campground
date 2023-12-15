@@ -21,12 +21,10 @@ app.get('/', (req, res) => {
 })
 app.get("/campgrounds", catchAsync(async (req, res) => {
     const connection = new Connection(config);
-// Setup event handler when the connection is established.
     connection.on('connect', function (err) {
         if (err) {
             console.log('Error: ', err)
         }
-        // If no error, then good to go...
         else {
             console.log("connected success")
             const campgrounds = new Promise(function (resolve, reject) {
@@ -47,9 +45,9 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
                         // console.log(index, column.metadata.colName, column.value);
                     })
                 })
-                request.on("requestCompleted", function (rowCount, more) {
-                    resolve(db_data)
+                request.on("requestCompleted", function () {
                     connection.close();
+                    resolve(db_data)
                 });
                 connection.execSql(request);
             })
@@ -58,21 +56,20 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
             })
         }
     });
-// Initialize the connection.
     connection.connect()
 }))
-// app.get("/campgrounds/new",(req,res)=>{
-//     res.render("campgrounds/new");
-// })
+app.get("/campgrounds/new",(req,res)=>{
+    res.render("campgrounds/new");
+})
 // app.post('/campgrounds', catchAsync(async (req, res,next) => {
 //         const campground = new Campground(req.body.campground);
 //         await campground.save();
 //         res.redirect(`/campgrounds/${campground._id}`)
 // }))
-// app.get("/campgrounds/:id", catchAsync(async(req,res)=>{
-//     const campground = await Campground.findById(req.params.id)
-//     res.render("campgrounds/show.ejs",{campground})
-// }))
+app.get("/campgrounds/:id", catchAsync(async(req,res)=>{
+    console.log(req.params.id)
+    res.render("campgrounds/show.ejs",{campground})
+}))
 // app.get("/campgrounds/:id/edit", catchAsync(async (req,res)=>{
 //     const  campground = await Campground.findById(req.params.id)
 //     res.render("campgrounds/edit",{campground})
@@ -87,15 +84,15 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
 //     await Campground.findByIdAndDelete(id)
 //     res.redirect("/campgrounds")
 // }))
-//
-// app.all("*",(req, res, next)=>{
-//     next(new expressError("Page Not Found", 404))
-// })
-//
-// app.use((err, req, res, next)=>{
-//     const {statusCode=500, message="Something went wrong"} = err
-//     res.status(statusCode).send(message)
-// })
+
+app.all("*",(req, res, next)=>{
+    next(new expressError("Page Not Found", 404))
+})
+
+app.use((err, req, res, next)=>{
+    const {statusCode=500, message="Something went wrong"} = err
+    res.status(statusCode).send(message)
+})
 app.listen(8000, () => {
     console.log("serving on port 8000")
 })
