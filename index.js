@@ -13,20 +13,19 @@ const {promises} = require("msnodesqlv8");
 const app = express()
 
 app.set("view engine", "ejs")
-app.set("views",path.join(__dirname,"views"))
-app.engine('ejs',ejsMate)
+app.set("views", path.join(__dirname, "views"))
+app.engine('ejs', ejsMate)
 
-app.use(express.urlencoded({ extended: true}))
+app.use(express.urlencoded({extended: true}))
 app.use(methodOverride("_method"))
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.render("home")
 })
-app.get("/campgrounds", catchAsync(async (req,res)=>{
-
+app.get("/campgrounds", catchAsync(async (req, res) => {
     const Connection = require('tedious').Connection;
     const config = require("./models/dbConfig")
-
+    const Request = require('tedious').Request;
     const connection = new Connection(config);
 // Setup event handler when the connection is established.
     connection.on('connect', function (err) {
@@ -36,54 +35,40 @@ app.get("/campgrounds", catchAsync(async (req,res)=>{
         // If no error, then good to go...
         else {
             console.log("connected success")
-            async function getdata(){
-                const campgrounds = await querySql()
-                console.log(campgrounds)
-                res.render("campgrounds/index",{campgrounds})
-            }
-
-            getdata()
+            const campgrounds = new Promise(function (resolve, reject) {
+                let db_data = []
+                const request = new Request("SELECT * FROM camp_information", function (err) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log("query start")
+                    }
+                })
+                request.on("row", function (columns) {
+                    columns.forEach(function (column, index) {
+                        if (index === 0) {
+                            db_data.push({});
+                        }
+                        db_data[db_data.length - 1][column.metadata.colName] = column.value;
+                        // console.log(index, column.metadata.colName, column.value);
+                    })
+                })
+                request.on("requestCompleted", function (rowCount, more) {
+                    resolve(db_data)
+                    connection.close();
+                });
+                connection.execSql(request);
+            })
+            campgrounds.then(function (db_data) {
+                console.log(db_data)
+            })
+            campgrounds.then(function (campgrounds) {
+                res.render("campgrounds/index", {campgrounds})
+            })
         }
-
     });
 // Initialize the connection.
     connection.connect()
-
-// const TYPES = require('tedious').TYPES;
-    const Request = require('tedious').Request;
-    function querySql() {
-        const request = new Request("SELECT * FROM camp_information", function (err) {
-            if (err) {
-                console.log(err)
-            } else {
-                console.log("query start")
-            }
-        })
-        return new Promise(function (resolve, reject) {
-            request.on("row", function (columns) {
-                let db_Data = []
-                columns.forEach(function (column,index) {
-                    if(index === 0){
-                        db_Data.push({});
-                    }
-                    db_Data[db_Data.length-1][column.metadata.colName] = column.value;
-                    // console.log(index,column.metadata.colName,column.value);
-                })
-                resolve(db_Data)
-            })
-            request.on("requestCompleted", function (rowCount, more) {
-                connection.close();
-
-            });
-            connection.execSql(request);
-        })
-
-
-        // request.on('done', function (rowCount, more) {
-        //     console.log(rowCount + ' rows returned');
-        // });
-
-    }
 }))
 // app.get("/campgrounds/new",(req,res)=>{
 //     res.render("campgrounds/new");
@@ -120,6 +105,6 @@ app.get("/campgrounds", catchAsync(async (req,res)=>{
 //     const {statusCode=500, message="Something went wrong"} = err
 //     res.status(statusCode).send(message)
 // })
-app.listen(8000, ()=>{
+app.listen(8000, () => {
     console.log("serving on port 8000")
 })
