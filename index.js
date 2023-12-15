@@ -3,13 +3,10 @@ const express = require("express")
 const methodOverride = require("method-override")
 const path = require("path")
 
-const Campground = require("./models/campground")
 const catchAsync = require("./utils/catchAsync")
-const expressError = require("./utils/ExpressError")
+// const expressError = require("./utils/ExpressError")
 const {Connection, Request} = require("tedious");
 const config = require("./models/dbConfig");
-const {promises} = require("msnodesqlv8");
-
 const app = express()
 
 app.set("view engine", "ejs")
@@ -23,9 +20,6 @@ app.get('/', (req, res) => {
     res.render("home")
 })
 app.get("/campgrounds", catchAsync(async (req, res) => {
-    const Connection = require('tedious').Connection;
-    const config = require("./models/dbConfig")
-    const Request = require('tedious').Request;
     const connection = new Connection(config);
 // Setup event handler when the connection is established.
     connection.on('connect', function (err) {
@@ -58,9 +52,6 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
                     connection.close();
                 });
                 connection.execSql(request);
-            })
-            campgrounds.then(function (db_data) {
-                console.log(db_data)
             })
             campgrounds.then(function (campgrounds) {
                 res.render("campgrounds/index", {campgrounds})
