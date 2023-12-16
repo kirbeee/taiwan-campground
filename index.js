@@ -16,6 +16,7 @@ app.engine('ejs', ejsMate)
 app.use(express.urlencoded({extended: true}))
 app.use(methodOverride("_method"))
 
+
 app.get('/', (req, res) => {
     res.render("home")
 })
@@ -47,6 +48,7 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
                 })
                 request.on("requestCompleted", function () {
                     connection.close();
+                    console.log("disconnect sql")
                     resolve(db_data)
                 });
                 connection.execSql(request);
@@ -67,8 +69,46 @@ app.get("/campgrounds/new",(req,res)=>{
 //         res.redirect(`/campgrounds/${campground._id}`)
 // }))
 app.get("/campgrounds/:id", catchAsync(async(req,res)=>{
-    console.log(req.params.id)
-    res.render("campgrounds/show.ejs",{campground})
+    const connection = new Connection(config);
+    connection.on('connect', function (err) {
+        if (err) {
+            console.log('Error: ', err)
+        }
+        else {
+            console.log("connected success")
+            const campgrounds = new Promise(function (resolve, reject) {
+                const request = new Request(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`, function (err) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log("query start")
+                    }
+                })
+                const db_data = []
+                request.on("row", function (columns) {
+                    columns.forEach(function (column, index) {
+                        if (index === 0) {
+                            db_data.push({});
+                        }
+                        db_data[db_data.length - 1][column.metadata.colName] = column.value;
+                    })
+                })
+                request.on("requestCompleted", function () {
+                    connection.close();
+                    console.log("disconnect sql")
+                    // console.log(db_data)
+                    resolve(db_data[0])
+                });
+                connection.execSql(request);
+            })
+            campgrounds.then(function (campground) {
+                res.render("campgrounds/show", {campground})
+                console.log(campground)
+            })
+        }
+    });
+    connection.connect()
+    // res.render("campgrounds/show.ejs",{campground})
 }))
 // app.get("/campgrounds/:id/edit", catchAsync(async (req,res)=>{
 //     const  campground = await Campground.findById(req.params.id)
