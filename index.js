@@ -25,10 +25,9 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
     connection.on('connect', function (err) {
         if (err) {
             console.log('Error: ', err)
-        }
-        else {
+        } else {
             console.log("connected success")
-            const campgrounds = new Promise(function (resolve, reject) {
+            const campgrounds = new Promise(function (resolve) {
                 let db_data = []
                 const request = new Request("SELECT * FROM camp_information", function (err) {
                     if (err) {
@@ -60,7 +59,7 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
     });
     connection.connect()
 }))
-app.get("/campgrounds/new",(req,res)=>{
+app.get("/campgrounds/new", (req, res) => {
     res.render("campgrounds/new");
 })
 // app.post('/campgrounds', catchAsync(async (req, res,next) => {
@@ -68,15 +67,14 @@ app.get("/campgrounds/new",(req,res)=>{
 //         await campground.save();
 //         res.redirect(`/campgrounds/${campground._id}`)
 // }))
-app.get("/campgrounds/:id", catchAsync(async(req,res)=>{
+app.get("/campgrounds/:id", catchAsync(async (req, res) => {
     const connection = new Connection(config);
     connection.on('connect', function (err) {
         if (err) {
             console.log('Error: ', err)
-        }
-        else {
+        } else {
             console.log("connected success")
-            const campgrounds = new Promise(function (resolve, reject) {
+            const campgrounds = new Promise(function (resolve) {
                 const request = new Request(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`, function (err) {
                     if (err) {
                         console.log(err)
@@ -108,12 +106,48 @@ app.get("/campgrounds/:id", catchAsync(async(req,res)=>{
         }
     });
     connection.connect()
-    // res.render("campgrounds/show.ejs",{campground})
 }))
-// app.get("/campgrounds/:id/edit", catchAsync(async (req,res)=>{
-//     const  campground = await Campground.findById(req.params.id)
-//     res.render("campgrounds/edit",{campground})
-// }))
+app.get("/campgrounds/:id/edit", catchAsync(async (req, res) => {
+    const connection = new Connection(config);
+    connection.on('connect', function (err) {
+        if (err) {
+            console.log('Error: ', err)
+        } else {
+            console.log("connected success")
+            const campgrounds = new Promise(function (resolve) {
+                const request = new Request(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`, function (err) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log("query start")
+                    }
+                })
+                const db_data = []
+                request.on("row", function (columns) {
+                    columns.forEach(function (column, index) {
+                        if (index === 0) {
+                            db_data.push({});
+                        }
+                        db_data[db_data.length - 1][column.metadata.colName] = column.value;
+                    })
+                })
+                request.on("requestCompleted", function () {
+                    connection.close();
+                    console.log("disconnect sql")
+                    // console.log(db_data)
+                    resolve(db_data[0])
+                });
+                connection.execSql(request);
+            })
+            campgrounds.then(function (campground) {
+                res.render("campgrounds/edit", {campground})
+                console.log(campground)
+            })
+        }
+    });
+    connection.connect()
+
+}))
 // app.put("/campgrounds/:id", catchAsync(async (req,res) =>{
 //     const {id} = req.params
 //     const campground = await Campground.findByIdAndUpdate(id,{...req.body.campground})
@@ -125,12 +159,12 @@ app.get("/campgrounds/:id", catchAsync(async(req,res)=>{
 //     res.redirect("/campgrounds")
 // }))
 
-app.all("*",(req, res, next)=>{
+app.all("*", (req, res, next) => {
     next(new expressError("Page Not Found", 404))
 })
 
-app.use((err, req, res, next)=>{
-    const {statusCode=500, message="Something went wrong"} = err
+app.use((err, req, res, next) => {
+    const {statusCode = 500, message = "Something went wrong"} = err
     res.status(statusCode).send(message)
 })
 app.listen(8000, () => {
