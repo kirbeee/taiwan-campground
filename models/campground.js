@@ -9,7 +9,7 @@ function querySQL(command) {
             if (err) {
                 reject(err)
             } else {
-                console.log("connection success")
+                // console.log("connection success")
                 getData()
             }
         });
@@ -52,7 +52,7 @@ function insertSQL(Data){
             }
             // If no error, then good to go...
             else {
-                console.log("connected success")
+                // console.log("connected success")
                 insertData()
             }
         });
@@ -69,7 +69,7 @@ function insertSQL(Data){
                 if (err) {
                     reject(err)
                 } else {
-                    console.log("start insert")
+                    // console.log("start insert")
                 }
             })
             request.addParameter('image', TYPES.VarChar, Data.image)
@@ -110,18 +110,16 @@ function findByIdAndDelete(id){
                 DeleteRow()
             }
         });
-
-
         connection.connect()
 
         const Request = require("tedious").Request
-        const TYPES = require("tedious").TYPES
+
         function DeleteRow() {
             const request = new Request(`DELETE FROM camp_information WHERE campgroundID = ${id}`, function (err) {
                 if (err) {
                     reject(err)
                 } else {
-                    console.log("start delete")
+                    // console.log("start delete")
                 }
             })
             // request.on('row', function (columns) {
@@ -136,3 +134,65 @@ function findByIdAndDelete(id){
     })
 }
 module.exports.findByIdAndDelete = findByIdAndDelete
+
+function findByIdAndUpdate(id,updateData) {
+    return new Promise(function (resolve, reject) {
+        const connection = new Connection(config);
+        connection.on('connect', function (err) {
+            if (err) {
+                reject(err)
+            }
+            else {
+                console.log("connected success")
+                updateRow()
+            }
+        });
+        connection.connect()
+
+        const Request = require("tedious").Request
+        // function updateRow() {
+        //     const request = new Request(`UPDATE camp_information SET image=${updateData.image},title=${updateData.title},price=${updateData.price},description=${updateData.description},location=${updateData.location} WHERE campgroundID = ${id}`, function (err) {
+        //         if (err) {
+        //             reject(err)
+        //         } else {
+        //             console.log("start update")
+        //         }
+        //     })
+        //     request.on("requestCompleted", function () {
+        //         connection.close();
+        //         console.log("touch")
+        //         resolve(id)
+        //     })
+        //     connection.execSql(request)
+        // }
+
+        function updateRow() {
+            const request = new Request(
+                `UPDATE camp_information SET image=@image, title=@title, price=@price, description=@description, location=@location WHERE campgroundID = @id`,
+                function (err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log("start update");
+                    }
+                }
+            );
+            // Set parameters for the update
+            request.addParameter("id", TYPES.Int, id);
+            request.addParameter("image", TYPES.NVarChar, updateData.image);
+            request.addParameter("title", TYPES.NVarChar, updateData.title);
+            request.addParameter("price", TYPES.Decimal, updateData.price);
+            request.addParameter("description", TYPES.NVarChar, updateData.description);
+            request.addParameter("location", TYPES.NVarChar, updateData.location);
+
+            request.on("requestCompleted", function () {
+                connection.close();
+                console.log("update completed");
+                resolve(id);
+            });
+            connection.execSql(request);
+        }
+    })
+}
+
+module.exports.findByIdAndUpdate = findByIdAndUpdate
