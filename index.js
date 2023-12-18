@@ -28,11 +28,11 @@ app.get("/campgrounds", catchAsync(async (req, res) => {
 app.get("/campgrounds/new", (req, res) => {
     res.render("campgrounds/new");
 })
-// app.post('/campgrounds', catchAsync(async (req, res,next) => {
-//         const campground = new Campground(req.body.campground);
-//         await campground.save();
-//         res.redirect(`/campgrounds/${campground._id}`)
-// }))
+app.post('/campgrounds', catchAsync(async (req, res,next) => {
+        console.log(req.body.campground);
+        const id = await sql.insertSQL(req.body.campground)
+        res.redirect(`/campgrounds/${id}`)
+}))
 app.get("/campgrounds/:id", catchAsync(async (req, res) => {
     let campground = await sql.querySQL(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`)
     campground = campground[0]
@@ -43,11 +43,11 @@ app.get("/campgrounds/:id/edit", catchAsync(async (req, res) => {
     campground = campground[0]
     res.render("campgrounds/edit", {campground})
 }))
-app.put("/campgrounds/:id", catchAsync(async (req,res) =>{
+// app.put("/campgrounds/:id", catchAsync(async (req,res) =>{
     // const {id} = req.params
     // const campground = await Campground.findByIdAndUpdate(id,{...req.body.campground})
     // res.redirect(`/campgrounds/${campground._id}`)
-}))
+// }))
 // app.delete("/campgrounds/:id", catchAsync(async (req,res)=>{
 //     const {id} = req.params;
 //     await Campground.findByIdAndDelete(id)
