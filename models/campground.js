@@ -96,3 +96,43 @@ function insertSQL(Data){
     })
 }
 module.exports.insertSQL = insertSQL
+
+function findByIdAndDelete(id){
+    return new Promise(function (resolve, reject) {
+        const connection = new Connection(config);
+        connection.on('connect', function (err) {
+            if (err) {
+                reject(err)
+            }
+            // If no error, then good to go...
+            else {
+                console.log("connected success")
+                DeleteRow()
+            }
+        });
+
+
+        connection.connect()
+
+        const Request = require("tedious").Request
+        const TYPES = require("tedious").TYPES
+        function DeleteRow() {
+            const request = new Request(`DELETE FROM camp_information WHERE campgroundID = ${id}`, function (err) {
+                if (err) {
+                    reject(err)
+                } else {
+                    console.log("start delete")
+                }
+            })
+            // request.on('row', function (columns) {
+            //     console.log(columns)
+            // })
+            request.on("requestCompleted", function () {
+                connection.close();
+                resolve()
+            })
+            connection.execSql(request)
+        }
+    })
+}
+module.exports.findByIdAndDelete = findByIdAndDelete
