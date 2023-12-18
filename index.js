@@ -8,6 +8,7 @@ const catchAsync = require("./utils/catchAsync")
 const {Connection, Request} = require("tedious");
 const config = require("./models/dbConfig");
 const app = express()
+const sql = require("./models/campground")
 
 app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
@@ -21,43 +22,8 @@ app.get('/', (req, res) => {
     res.render("home")
 })
 app.get("/campgrounds", catchAsync(async (req, res) => {
-    const connection = new Connection(config);
-    connection.on('connect', function (err) {
-        if (err) {
-            console.log('Error: ', err)
-        } else {
-            console.log("connected success")
-            const campgrounds = new Promise(function (resolve) {
-                let db_data = []
-                const request = new Request("SELECT * FROM camp_information", function (err) {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        console.log("query start")
-                    }
-                })
-                request.on("row", function (columns) {
-                    columns.forEach(function (column, index) {
-                        if (index === 0) {
-                            db_data.push({});
-                        }
-                        db_data[db_data.length - 1][column.metadata.colName] = column.value;
-                        // console.log(index, column.metadata.colName, column.value);
-                    })
-                })
-                request.on("requestCompleted", function () {
-                    connection.close();
-                    console.log("disconnect sql")
-                    resolve(db_data)
-                });
-                connection.execSql(request);
-            })
-            campgrounds.then(function (campgrounds) {
-                res.render("campgrounds/index", {campgrounds})
-            })
-        }
-    });
-    connection.connect()
+    const campgrounds = await sql.querySQL("SELECT * FROM camp_information")
+    res.render("campgrounds/index", {campgrounds})
 }))
 app.get("/campgrounds/new", (req, res) => {
     res.render("campgrounds/new");
@@ -68,91 +34,20 @@ app.get("/campgrounds/new", (req, res) => {
 //         res.redirect(`/campgrounds/${campground._id}`)
 // }))
 app.get("/campgrounds/:id", catchAsync(async (req, res) => {
-    const connection = new Connection(config);
-    connection.on('connect', function (err) {
-        if (err) {
-            console.log('Error: ', err)
-        } else {
-            console.log("connected success")
-            const campgrounds = new Promise(function (resolve) {
-                const request = new Request(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`, function (err) {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        console.log("query start")
-                    }
-                })
-                const db_data = []
-                request.on("row", function (columns) {
-                    columns.forEach(function (column, index) {
-                        if (index === 0) {
-                            db_data.push({});
-                        }
-                        db_data[db_data.length - 1][column.metadata.colName] = column.value;
-                    })
-                })
-                request.on("requestCompleted", function () {
-                    connection.close();
-                    console.log("disconnect sql")
-                    // console.log(db_data)
-                    resolve(db_data[0])
-                });
-                connection.execSql(request);
-            })
-            campgrounds.then(function (campground) {
-                res.render("campgrounds/show", {campground})
-                console.log(campground)
-            })
-        }
-    });
-    connection.connect()
+    let campground = await sql.querySQL(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`)
+    campground = campground[0]
+    res.render("campgrounds/show.ejs", {campground})
 }))
 app.get("/campgrounds/:id/edit", catchAsync(async (req, res) => {
-    const connection = new Connection(config);
-    connection.on('connect', function (err) {
-        if (err) {
-            console.log('Error: ', err)
-        } else {
-            console.log("connected success")
-            const campgrounds = new Promise(function (resolve) {
-                const request = new Request(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`, function (err) {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        console.log("query start")
-                    }
-                })
-                const db_data = []
-                request.on("row", function (columns) {
-                    columns.forEach(function (column, index) {
-                        if (index === 0) {
-                            db_data.push({});
-                        }
-                        db_data[db_data.length - 1][column.metadata.colName] = column.value;
-                    })
-                })
-                request.on("requestCompleted", function () {
-                    connection.close();
-                    console.log("disconnect sql")
-                    // console.log(db_data)
-                    resolve(db_data[0])
-                });
-                connection.execSql(request);
-            })
-            campgrounds.then(function (campground) {
-                res.render("campgrounds/edit", {campground})
-                console.log(campground)
-            })
-        }
-    });
-    connection.connect()
-
+    let campground = await sql.querySQL(`select * FROM camp_information WHERE campgroundID IN (${req.params.id})`)
+    campground = campground[0]
+    res.render("campgrounds/edit", {campground})
 }))
-// app.put("/campgrounds/:id", catchAsync(async (req,res) =>{
-//     const {id} = req.params
-//     const campground = await Campground.findByIdAndUpdate(id,{...req.body.campground})
-//     res.redirect(`/campgrounds/${campground._id}`)
-// }))
+app.put("/campgrounds/:id", catchAsync(async (req,res) =>{
+    // const {id} = req.params
+    // const campground = await Campground.findByIdAndUpdate(id,{...req.body.campground})
+    // res.redirect(`/campgrounds/${campground._id}`)
+}))
 // app.delete("/campgrounds/:id", catchAsync(async (req,res)=>{
 //     const {id} = req.params;
 //     await Campground.findByIdAndDelete(id)
