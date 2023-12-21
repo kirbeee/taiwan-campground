@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../../generative_agents/.idea/generative_agents.iml" filepath="$PROJECT_DIR$/../../generative_agents/.idea/generative_agents.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../taiwan-campground/.idea/taiwan-campground.iml" filepath="$PROJECT_DIR$/../taiwan-campground/.idea/taiwan-campground.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/yelp_camp.iml" filepath="$PROJECT_DIR$/.idea/yelp_camp.iml" />
     </modules>
   </component>
 </project>
