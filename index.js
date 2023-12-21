@@ -3,10 +3,9 @@ const express = require("express")
 const methodOverride = require("method-override")
 const path = require("path")
 
+
 const catchAsync = require("./utils/catchAsync")
-// const expressError = require("./utils/ExpressError")
-const {Connection, Request} = require("tedious");
-const config = require("./models/dbConfig");
+const expressError = require("./utils/ExpressError")
 const app = express()
 const sql = require("./models/campground")
 

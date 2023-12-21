@@ -1,32 +1,32 @@
 <% layout("layout/boilerplate")%>
 
 <div class="row">
-    <h1 class="text-center">Edit Campground</h1>
+    <h1 class="text-center">編輯資料</h1>
     <div class="col-6 offset-3">
         <form action="/campgrounds/<%=campground.campgroundID%>?_method=PUT" method="POST" novalidate class="validated-form">
             <div class="mb-3">
-                <label class="form-label" for="title">Title</label>
+                <label class="form-label" for="title">標題</label>
                 <input class="form-control" type="text" id="title" name="campground[title]" value="<%=campground.title%>" required>
                 <div class="valid-feedback">
                     Looks good!
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label" for="location">Location</label>
+                <label class="form-label" for="location">地點</label>
                 <input class="form-control" type="text" id="location" name="campground[location]" value="<%=campground.location%>" required>
                 <div class="valid-feedback">
                     Looks good!
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label" for="image">image URL</label>
+                <label class="form-label" for="image">圖像 URL</label>
                 <input class="form-control" type="text" id="image" name="campground[image]" value="<%=campground.image%>" required>
                 <div class="valid-feedback">
                     Looks good!
                 </div>
             </div>
             <div class="mb-3">
-                <label for="price" class="form-label">Campground Price</label>
+                <label for="price" class="form-label">價格</label>
                 <div class="input-group">
                     <span class="input-group-text" id="price">$</span>
                     <input type="text" id="price" class="form-control" placeholder="0.00" aria-describedby="price-label" name="campground[price]" value="<%=campground.price%>" required>
@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label" for="description">Description</label>
+                <label class="form-label" for="description">描述</label>
                 <textarea class="form-control" id="image" name="campground[description]" required>
                     <%= campground.description%>
                 </textarea>
@@ -45,11 +45,11 @@
                 </div>
             </div>
             <div class="mb-3">
-                <button class="btn btn-info">Update Campground</button>
+                <button class="btn btn-info">完成並更新資料</button>
             </div>
 
         </form>
-        <a href="/campgrounds/<%= campground.campgroundID%>">Back to Campground</a>
+        <a href="/campgrounds/<%= campground.campgroundID%>">返回列表</a>
 
     </div>
 </div>
