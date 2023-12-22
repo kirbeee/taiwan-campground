@@ -1,6 +1,6 @@
 # Taiwan Campground Website: A Simple Small Project
 
-<img src="">
+<img src="ReadMePicture/camp_pic.jpg" alt="picture of the campground">
 
 ## Setting up the Environment for windows
 To set up your sql environment
@@ -27,7 +27,7 @@ git clone
 #### step2. install node.js
 https://nodejs.org/en
 #### step3 download the dependence and module
-`cd ` into the directory from github.
+`cd ` into the directory from GitHub.
 ```shell
 npm install
 ```
@@ -37,6 +37,6 @@ node ./index.js
 ```
 ### Create DataBase and insert some data
 
-**Authors:** 
+**Authors:**
 * Sean_Lin(kirbeee) S10350313@thu.edu.tw
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/sqvkfi3f)
