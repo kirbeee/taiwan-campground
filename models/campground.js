@@ -2,7 +2,7 @@ const config = require("./dbConfig")
 const {Request, Connection, TYPES} = require("tedious");
 
 function querySQL(command) {
-    return new Promise(function (resolve, reject) {
+    return new Promise( function (resolve, reject) {
         let db_data = []
         const connection = new Connection(config);
         connection.on('connect', async function (err) {

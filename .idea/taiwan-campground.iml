@@ -8,6 +8,5 @@
     </content>
     <orderEntry type="jdk" jdkName="$USER_HOME$/anaconda3" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="generative_agents" />
   </component>
 </module>
